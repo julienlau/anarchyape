@@ -1,2 +1,0 @@
-echo u > /proc/sysrq-trigger
-

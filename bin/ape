@@ -1,0 +1,11 @@
+#!/bin/bash
+
+export apedir=/opt/anarchyape
+export thejar=anarchyape.jar
+if [[ ! -e ${apedir}/${thejar} ]]; then
+    echo "ERROR ! jar not found"
+    exit 99
+fi
+
+echo "java -jar ${apedir}/${thejar} $*"
+java -jar ${apedir}/${thejar} $*

@@ -83,7 +83,9 @@ public class PDSHCommunication extends CommunicationInterface
 			}
 
 			String uuid = UUID.randomUUID().toString();
-			String cmd = "echo \"" + cmdFromLocalhost.toString() + "\" > " + uuid + ".sh && chmod +x " + uuid + ".sh && ./" + uuid + ".sh && rm " + uuid + ".sh"; 
+			// tc command needs root privilege
+			String cmd = "echo \"" + cmdFromLocalhost.toString() + "\" > " + uuid + ".sh && chmod +x " + uuid +
+                    ".sh && sudo ./" + uuid + ".sh && rm " + uuid + ".sh";
 			if(Main.VERBOSE)
 			{
 				System.out.println(cmd);

@@ -39,10 +39,10 @@ public class NetworkSlowCommand extends ApeCommand{
 	public NetworkSlowCommand()
 	{
 		option = OptionBuilder
-		.withArgName("delay> <duration")
-		.hasArgs(2)
+		.withArgName("delay> <duration> <nic")
+		.hasArgs(3)
 		.withValueSeparator()
-        .withDescription("Delay all network packet delivery by a specified amount of time (in milliseconds) for a period specified in seconds")
+        .withDescription("Delay all network packet delivery by a specified amount of time (in milliseconds) for a period specified in seconds on a given network interface")
         .withLongOpt("network-slow")
         .create("S");
 	}
@@ -59,20 +59,22 @@ public class NetworkSlowCommand extends ApeCommand{
 	
 	public boolean runImpl(String [] args) throws ParseException, IOException 
 	{
-		String arg1,arg2 = null;
+		String arg1,arg2,arg3 = null;
 		arg1 = args[0];
 		arg2 = args[1];
-		
+		arg3 = args[2];
+
 		double time = Double.parseDouble(arg1);
 		double period = Double.parseDouble(arg2);
-		
-		if(time<=0||period <=0)
+		String nic = arg3;
+
+		if(time<=0||period <=0||nic.isEmpty())
 		{
 			System.err.println("Argument Not Positive");
 			return false;
 		}
 
-		if(!executecommand(time, period))
+		if(!executecommand(time, period, nic))
 		{
 			System.err.println("Simulating Network Delay unsuccessful, turn on VERBOSE flag to check");
 			return false;
@@ -88,9 +90,9 @@ public class NetworkSlowCommand extends ApeCommand{
 	 * @return True if successful execution, false if an error occurred
 	 * @throws IOException
 	 */
-	private boolean executecommand(double time, double period) throws IOException
+	private boolean executecommand(double time, double period, String nic) throws IOException
 	{
-		String cmd = "tc qdisc add dev eth0 root netem delay " + time + "ms && sleep "+period+" && tc qdisc del dev eth0 root netem";
+		String cmd = "tc qdisc add dev " + nic + " root netem delay " + time + "ms && sleep "+period+" && tc qdisc del dev " + nic + " root netem";
 		ProcessBuilder pb = new ProcessBuilder("bash", "-c", cmd);
 		pb.redirectErrorStream(true);
 		Process p =  null;

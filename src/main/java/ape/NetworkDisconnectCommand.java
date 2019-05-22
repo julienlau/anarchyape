@@ -42,11 +42,13 @@ public class NetworkDisconnectCommand extends ApeCommand
 	 */
 	public NetworkDisconnectCommand()
 	{
-		option = OptionBuilder.withArgName("time").hasArgs(1)
-		.withValueSeparator()
-        .withDescription("Disconnect the network for a certain period of time specified in the argument, and then resumes")
-        .withLongOpt("network-disconnect")
-        .create("d");
+        option = OptionBuilder
+                .withArgName("time> <nic")
+                .hasArgs(2)
+                .withValueSeparator()
+                .withDescription("Disconnect the network for a certain period of time specified in the argument on a given network interface, and then resumes")
+                .withLongOpt("network-disconnect")
+                .create("d");
 	}
 	
 	public String getName()
@@ -61,10 +63,12 @@ public class NetworkDisconnectCommand extends ApeCommand
 	
 	public boolean runImpl(String [] args) throws ParseException, IOException 
 	{
-		String argument = null;
-		argument = args[0];
+        String arg1,arg2 = null;
+        arg1 = args[0];
+        arg2 = args[1];
 		
-		double time = Double.parseDouble(argument);
+		double time = Double.parseDouble(arg1);
+		String nic = arg2;
 		
 		if(time<=0)
 		{
@@ -73,7 +77,7 @@ public class NetworkDisconnectCommand extends ApeCommand
 			return false;
 		}
 
-		if(!executecommand(time))
+		if(!executecommand(time, nic))
 		{
 			System.out.println("ERROR: Simulating network failure unsuccessful.");
 			Main.logger.info("ERROR: Simulating network failure unsuccessful.");
@@ -86,9 +90,9 @@ public class NetworkDisconnectCommand extends ApeCommand
 	/**
 	 * This method actually executes the command that would disconnect the network
 	 */
-	private boolean executecommand(double time) throws IOException
+	private boolean executecommand(double time, String nic) throws IOException
 	{
-		String cmd = "ifdown eth0 && sleep " + time + " && /etc/init.d/network restart";
+		String cmd = "ifdown " + nic + " && sleep " + time + " && /etc/init.d/network restart";
 		ProcessBuilder pb = new ProcessBuilder("bash", "-c", cmd);
 		pb.redirectErrorStream(true);
 		Process p =  null;

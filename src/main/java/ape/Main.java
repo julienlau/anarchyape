@@ -16,6 +16,7 @@
 
 package ape;
 
+import java.io.File;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.util.Date;
@@ -59,38 +60,45 @@ public class Main
 	private static Options opts;
 	private static CommandLine line;
 	// If the version is modified here, it must also be modified in pom.xml
-	private static double VERSION = 0.2;
+	private static double VERSION = 0.3;
 	private static int cmdN = -1;
 	private static int modeN = -1;
 	private static ServiceLoader<ApeCommand> loader = ServiceLoader.load(ApeCommand.class);
 	private static int MAX_OPTION_LENGTH;
+	private static String confLog4j = "log4j.properties";
 
 	public static final Logger logger = Logger.getLogger(Main.class.getName());
 
-	public static void main(String[] args) 
-	{
-		// Creating the Properties object for log4j
-		Properties ppt = new Properties();
-		ppt.setProperty("log4j.rootLogger", "INFO, appender1");
-		ppt.setProperty("log4j.appender.appender1", "org.apache.log4j.DailyRollingFileAppender");
-		ppt.setProperty("log4j.appender.appender1.File", "/var/log/ape.log");
-		ppt.setProperty("log4j.appender.appender1.DatePattern", ".yyyy-MM-dd");
-		ppt.setProperty("log4j.appender.appender1.layout","org.apache.log4j.PatternLayout");
+    public static void main(String[] args)
+    {
+        // Creating the Properties object for log4j
+        if (new File(confLog4j).isFile()) {
+            PropertyConfigurator.configure(confLog4j);
+        } else {
+            Properties ppt = new Properties();
+            ppt.setProperty("log4j.rootLogger", "INFO, file, stdout");
+            ppt.setProperty("log4j.appender.file", "org.apache.log4j.RollingFileAppender");
+            ppt.setProperty("log4j.appender.file.File", "anarchyape.log");
+            ppt.setProperty("log4j.appender.file.MaxFileSize", "1MB");
+            ppt.setProperty("log4j.appender.file.MaxBackupIndex", "2");
+            ppt.setProperty("log4j.appender.file.layout", "org.apache.log4j.PatternLayout");
+            ppt.setProperty("log4j.appender.file.layout.ConversionPattern", "%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1}:%L - %m%n");
+            ppt.setProperty("log4j.appender.stdout", "org.apache.log4j.ConsoleAppender");
+            ppt.setProperty("log4j.appender.stdout.layout", "org.apache.log4j.TTCCLayout");
+            // Configuring log4j to use the Properties object created above
+            PropertyConfigurator.configure(ppt);
+        }
+        // Log the current date and time
+        logger.info("\n---------------------------------\nStarting time:");
+        logTime();
 
-		// Configuring log4j to use the Properties object created above
-		PropertyConfigurator.configure(ppt);
-		
-		// Log the current date and time
-		logger.info("\n---------------------------------\nStarting time:");
-		logTime();
+        // Initialize all of the Option objects for each command (these are used by the CLI parser)
+        createOptions();
 
-		// Initialize all of the Option objects for each command (these are used by the CLI parser)
-		createOptions();
-		
-		// There should be an array of strings passed in as an argument (even if it's empty)
-		// If we get null, we exit
-		if(args == null)
-		{
+        // There should be an array of strings passed in as an argument (even if it's empty)
+        // If we get null, we exit
+        if(args == null)
+        {
 			System.err.println("Invalid arguments.  main(String[] args) method expected array of strings, got null.");
 			logger.info("Invalid arguments.  main(String[] args) method expected array of strings, got null");
 			printHelp();
@@ -98,7 +106,7 @@ public class Main
 		}
 		
 		// If an empty array is passed in, print the help dialog and exit
-		if(args.length == 0)
+        if(args.length < 1 || args[0] == null || args[0].isEmpty())
 		{
 			printHelp();
 			return;
@@ -222,7 +230,7 @@ public class Main
 		{
 			//go to remote
 			String []passIn = line.getOptionValues("R");
-			logger.info("Executing a command remotely");
+			logger.info("Executing a command remotely prefixed with sudo");
 			logger.info("hosts: ");
 			
 			for(int k=0; k< passIn.length;k++)
@@ -326,7 +334,7 @@ public class Main
 	 */
 	public static CommandLine getCommand(String [] args) throws ParseException
 	{
-		if(args == null || args.length < 1 || args[0] == null)
+		if(args == null || args.length < 1 || args[0] == null || args[0].isEmpty())
 		{
 			printHelp();
 			return null;
@@ -386,9 +394,9 @@ public class Main
 	 */
 	public static void printHelp()
 	{
-		// Add a logging message
+	    // Add a logging message
 		logger.info("Printing the help dialog.");
-		
+
 		// Use the Apache CLI library's build in help dialog printer
 		HelpFormatter formatter = new HelpFormatter();
 		formatter.printHelp("ape [options] ... <failure command>\noptions:", opts);
