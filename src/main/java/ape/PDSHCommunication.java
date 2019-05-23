@@ -85,7 +85,7 @@ public class PDSHCommunication extends CommunicationInterface
 			String uuid = UUID.randomUUID().toString();
 			// tc command needs root privilege
 			String cmd = "echo \"" + cmdFromLocalhost.toString() + "\" > " + uuid + ".sh && chmod +x " + uuid +
-                    ".sh && sudo ./" + uuid + ".sh && rm " + uuid + ".sh";
+                    ".sh && ./" + uuid + ".sh && rm " + uuid + ".sh";
 			if(Main.VERBOSE)
 			{
 				System.out.println(cmd);
@@ -220,7 +220,7 @@ public class PDSHCommunication extends CommunicationInterface
 		str = new String[3+cmdArgs.length];
 		// TODO: Make this not a hard-coded path, I.E. assume ape is already in the path
 		// Alternatively, choose a standardized place to put the ape executable like /usr/bin/ape
-		str[0] = "'/usr/local/bin/ape";
+		str[0] = "'sudo /usr/local/bin/ape";
 		str[1] = "-L";
 		str[2] = "-"+cmd;
 		for(int i=0;i<cmdArgs.length;i++)

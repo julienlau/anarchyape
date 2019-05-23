@@ -73,9 +73,9 @@ apt-get install pdsh
 cp ape /usr/local/bin/ape
 chmod go-rwx /usr/local/bin/ape
 
-java -jar ape.jar -R node1,node2,node3 -S 100 5
+java -jar ape.jar -R node1,node2,node3 -S 100 5 eth0
 # creates a script to run on the remote hosts:
-pdsh -Rssh -w node1,node2,node3 '/usr/local/bin/ape -L -S 100 5'
+pdsh -Rssh -w node1,node2,node3 '/usr/local/bin/ape -L -S 100 5 eth0'
 ```
 
 It seems not working as the remote hosts do not have /usr/local/bin/ape file.
@@ -204,8 +204,8 @@ java -jar ape.jar -L -p 80 30 eth0
 #java -jar ape.jar -L --corrupt-file <file> <size> <offset>
 #java -jar ape.jar -L -C,--corrupt-block <meta/ord> <size> <offset>
 
-#java -jar ape.jar -R precise386 -S 100 30
-#java -jar ape.jar -R cluser-ip-list.xml -S 100 5
+#java -jar ape.jar -R precise386 -S 100 30 eth0
+#java -jar ape.jar -R cluser-ip-list.xml -S 100 5 eth0
 
 #java -jar ape.jar -remote cluster-ip-list.xml -fb lambda -k lambda
 #java -jar ape.jar -remote cluster-ip-list.xml -F lambda
