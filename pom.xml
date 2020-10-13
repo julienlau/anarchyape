@@ -47,7 +47,7 @@ limitations under the License. See accompanying LICENSE file.
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>4.8.2</version>
+      <version>4.13.1</version>
       <type>jar</type>
       <scope>compile</scope>
     </dependency>
